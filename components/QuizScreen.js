@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableHighlight, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
+import { Text, View, TouchableHighlight, StyleSheet, TouchableOpacity } from 'react-native';
 import {connect} from 'react-redux';
 import { 
   clearLocalNotification,
