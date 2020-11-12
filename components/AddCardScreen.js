@@ -49,27 +49,27 @@ class AddCardScreen extends Component {
   
 
 const styles = StyleSheet.create({
-inputContainer: {
+  inputContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     flex: 2
-},
-input: {
-    height: 40, 
-    borderColor: 'gray', 
-    borderWidth: 1, 
-    margin: 10,
-    marginBottom: 5,
-    alignSelf: 'stretch'
+  },
+  input: {
+      height: 40, 
+      borderColor: 'gray', 
+      borderWidth: 1, 
+      margin: 10,
+      marginBottom: 5,
+      alignSelf: 'stretch'
 
-},
-submitButton: {
-    justifyContent: 'flex-end',
-    flex: 1,
-    width: 350,
-    margin: 5,
-    alignSelf: 'stretch'
-}
+  },
+  submitButton: {
+      justifyContent: 'flex-end',
+      flex: 1,
+      width: 350,
+      margin: 5,
+      alignSelf: 'stretch'
+  }
 });
 
 export default connect()(AddCardScreen)
