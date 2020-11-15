@@ -10,3 +10,6 @@ run the following command after checking it out locally.
 - expo start -a
 - you need to download an expo client from playstore.
 - open the expo app and scan the bar code to execute it on mobile device.
+
+## Screenshots:
+
