@@ -8,10 +8,19 @@ class AddDeckScreen extends Component {
     
     state = {
         title: '',
+        error: false
     }
 
     handleSubmit = () => {
       const { title } = this.state
+      
+      // Validating input.
+      if (title === '') {
+        this.setState({
+          error: true
+        })
+        return;
+      }
       StoreDeckToStorage(title)
       this.props.dispatch(addDeck(title, 0));
       this.props.navigation.goBack()
@@ -22,11 +31,12 @@ class AddDeckScreen extends Component {
         <View style={{flex: 1}}>
           <Text style={styles.newDeckTitle}>What is the title of your new deck?</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, {borderColor: this.state.error === true ? 'red' : 'gray' }]}
             placeholder="Deck Title"
-            onChangeText={title => this.setState({title: title})}
+            onChangeText={title => this.setState({title: title, error: false})}
             defaultValue={this.state.title}
             />
+            {this.state.error && <Text style={styles.error}>Error: Field Required.</Text>}
             <View style={{flex: 1, alignItems: 'center'}}>
             <View style={styles.createDeckButton}>
               <Button
@@ -42,7 +52,6 @@ class AddDeckScreen extends Component {
 const styles = StyleSheet.create({
   input: {
     height: 40, 
-    borderColor: 'gray', 
     borderWidth: 1, 
     margin: 10,
     alignSelf: 'stretch',
@@ -60,6 +69,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     width: 350,
     marginBottom: 15,
+  },
+  
+  error: {
+    color: 'red'
   }
 
 });

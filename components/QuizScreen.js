@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
 import { Text, View, TouchableHighlight, StyleSheet, TouchableOpacity } from 'react-native';
 import {connect} from 'react-redux';
-import { 
-  clearLocalNotification,
-  setLocalNotification
-} from '../utils/helper'
-
 import { UpdateDeckToStorage } from '../utils/api'
 import { updateDeck } from '../actions/index'
+import QuizResult from './QuizResult'
 
 
 
@@ -17,14 +13,15 @@ class QuizScreen extends Component {
    * ref: https://stackoverflow.com/questions/58144849/display-only-one-element-at-a-time-in-react-with-map
    */
 
-  state = {
+  getInitialState = () => ({
     index: 0,
     correctAnswers: 0,
     showAnswer: false,
-  }
+  })
 
-  componentDidMount() {
-    clearLocalNotification().then(setLocalNotification)
+  constructor(props) {
+    super(props);
+    this.state = this.getInitialState();
   }
 
   componentDidUpdate() {
@@ -36,30 +33,31 @@ class QuizScreen extends Component {
     }
   }
 
-  handleUserAnswers(userAnswer, realAnswer) {
-    if (realAnswer.toLowerCase() === userAnswer) {
+  handleUserAnswers(userAnswerCorrect) {
+    if (userAnswerCorrect) {
       this.setState((prevState) => ({
         correctAnswers: prevState.correctAnswers + 1,
         index: prevState.index + 1,
+        showAnswer: false
       }));
     } else {
       this.setState((prevState) => ({
         index: prevState.index + 1,
+        showAnswer: false
       }));
     }
   }
 
   reset(title) {
-    
-      UpdateDeckToStorage(title, false).then(
-        this.props.dispatch(updateDeck(title, false)),
-        this.props.navigation.navigate('Deck', { 'deck_title': title })
+    UpdateDeckToStorage(title, false).then(
+      this.props.dispatch(updateDeck(title, false)),
+      this.setState(this.getInitialState())
       )
   }
 
   render() {
 
-    const { cards, deck, navigation } = this.props;
+    const { cards, deck } = this.props;
     const { index, correctAnswers, showAnswer} = this.state;
     if (cards.length === 0) {
       return (
@@ -76,11 +74,22 @@ class QuizScreen extends Component {
       const cardAnswer = cards[index].answer;
       
       return (
-        <View style={ styles.quizDetails }>
-          <View style={styles.quizQuestion}>
-          <Text style={{fontSize: 25, fontWeight: 'bold'}}>{'Question: ' + cardQuestion}</Text>
+      <View style={styles.quizDetails}>
+        <Text style={styles.question}>{cardQuestion + ' ?'}</Text>
           {showAnswer === true ? (
-            <Text style={{fontSize: 20, fontWeight: 'bold'}}>{cardAnswer}</Text> 
+            <View>
+              <Text style={styles.answer}>Ans: {cardAnswer}</Text>
+              <View style={styles.btnView}>
+                <TouchableOpacity style={styles.btnGreen} onPress={() => this.handleUserAnswers(true)}>
+                  <Text style={styles.buttonText}>Correct</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.btnRed} onPress={() => this.handleUserAnswers(false)} >
+                  <Text style={styles.buttonText}>
+                    Incorrect
+                  </Text>
+                </TouchableOpacity>
+              </View>  
+            </View>
           ) : (        
               <TouchableHighlight underlayColor="white" onPress={() => this.setState({showAnswer: true})}>
                   <View>
@@ -89,40 +98,20 @@ class QuizScreen extends Component {
               </TouchableHighlight>
           )
             }
-          </View>
-          { showAnswer === false ? (
-          <View style={styles.btn}>
-            <TouchableOpacity style={styles.btnGreen} onPress={() => this.handleUserAnswers('yes', cardAnswer)}>
-              <Text style={styles.buttonText}>Correct</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btnRed} onPress={() => this.handleUserAnswers('no', cardAnswer)} >
-              <Text style={styles.buttonText}>
-                Incorrect
-              </Text>
-            </TouchableOpacity>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>{index+1}/{cards.length}</Text>
           </View> 
-          ) : ([])}
-          <Text style={{marginBottom: 10}}>{index+1}/{cards.length}</Text>
-          </View>
+      </View>
       );
     } else {
       return (
-        <View style={styles.quizCompleted}>
-          <Text style={{fontSize: 28}}>Quiz Completed!</Text>
-          <Text style={{fontSize: 20}}>Total number of correct answers are {correctAnswers}/{cards.length}.</Text>
-          <View style={{alignSelf: 'center'}}>
-            <TouchableOpacity style={styles.btnGreen} onPress={() => this.reset(deck.title)}>
-              <Text style={styles.buttonText}>
-                Reset Quiz
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btnRed} onPress={() => navigation.navigate('Deck', {'deck_title': deck.title})} >
-              <Text style={styles.buttonText}>
-                Back to Deck
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <QuizResult 
+          onReset={this.reset.bind(this)}
+          correctAnswers={correctAnswers}
+          totalCards={cards.length}
+          title={deck.title}
+          navigation={this.props.navigation}
+        />
       )
     }
   }
@@ -132,27 +121,38 @@ class QuizScreen extends Component {
     quizDetails: {
       flex: 1, 
       alignItems: 'center',
-      backgroundColor: 'slateblue',
-      },
-    
-    quizQuestion: {
-      margin: 20,
+      backgroundColor: 'slateblue'
+    },
+    question: {
+      fontSize: 25,
+      fontWeight: 'bold'
+    },
+    answer: {
+      margin: 10,
+      fontSize: 20,
+      fontWeight: 'bold',
+      alignSelf: 'stretch',
+    },
+    btnView: {
+      justifyContent: 'flex-end',
       alignItems: 'center',
-      },
-    btn: {
-      justifyContent:'center', flex: 2,
+      flex: 0.9
     },
     btnGreen: {
       width: 250,
       height: 50,
       margin: 5,
-      backgroundColor: 'green'
+      backgroundColor: 'green',
+      borderRadius:10,
+      borderWidth: 1
     },
     btnRed: {
       width: 250,
       height: 50,
       margin: 5,
       backgroundColor: 'red',
+      borderRadius:10,
+      borderWidth: 1
     },
     buttonText: {
       marginTop: 12,
@@ -165,10 +165,12 @@ class QuizScreen extends Component {
       fontSize: 20,
       textAlign: 'center'
     },
-    quizCompleted: {
-      flex: 2,
-      textAlign: 'center',
-      justifyContent: 'flex-start',
+    footer: {
+      flex: 1,
+      justifyContent: 'flex-end'
+    },
+    footerText: {
+      marginBottom: 5
     }
   });
   
