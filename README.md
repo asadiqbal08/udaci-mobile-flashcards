@@ -1,6 +1,6 @@
 # Project Overview
 
-For the UdaciCards project, you will build a mobile application (Android or iOS - or both) that allows users to study collections of flashcards. The app will allow users to create different categories of flashcards called "decks", add flashcards to those decks, then take quizzes on those decks.
+For the UdaciCards project, I have built a mobile application (Android or iOS - or both) that allows users to study collections of flashcards. The app allowed users to create different categories of flashcards called "decks", add flashcards to those decks, then take quizzes on those decks.
 
 ## Targeted platform:
 
